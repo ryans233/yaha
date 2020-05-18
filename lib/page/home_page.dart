@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: _buildActions(context),
       ),
       body: buildPageView(),
       bottomNavigationBar: BottomNavigationBar(
@@ -31,6 +32,17 @@ class _HomePageState extends State<HomePage> {
         onTap: (index) => _pageController.jumpToPage(index),
       ),
     );
+  }
+
+  List<Widget> _buildActions(BuildContext context) {
+    return <Widget>[
+        IconButton(
+          icon: Icon(Icons.settings),
+          color: Colors.white,
+          tooltip: "Open settings page",
+          onPressed: () => Navigator.pushNamed(context, "/settings"),
+        ),
+      ];
   }
 
   Widget buildPageView() {
