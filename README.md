@@ -1,6 +1,6 @@
 # yaha
 
-Yet Another HackerNews App
+Yet Another HackerNews App, powered by Flutter.
 
 ## Getting Started
 
