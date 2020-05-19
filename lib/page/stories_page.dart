@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:yaha/enum/story_type.dart';
@@ -125,8 +127,11 @@ class _StoriesPageState extends State<StoriesPage>
   }
 
   Future<List<StoryEntity>> fetchStories(List<int> ids) async {
+    var random = Random();
     List<StoryEntity> list = List();
-    await Future.wait(ids.map((int e) => api.getStory(e)))
+    await Future.wait(ids.map((int e) => Future.delayed(
+            Duration(milliseconds: random.nextInt(100)),
+            () => api.getStory(e))))
         .then((List<StoryEntity> value) =>
             list.addAll(value..sort((a, b) => b.id.compareTo(a.id))))
         .catchError(print);
