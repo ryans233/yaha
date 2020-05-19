@@ -15,78 +15,101 @@ class StoriesPage extends StatefulWidget {
 class _StoriesPageState extends State<StoriesPage>
     with AutomaticKeepAliveClientMixin {
   var api = HackerNewsApi();
-  var _isLoading = false;
+  var _isLoadingMore = false;
+  final _NUM_LOAD_MORE = 20;
 
-  String text;
-  List<int> ids = List(0);
-  Map<int, StoryEntity> cachedStories = Map();
+  List<int> ids = List();
+  List<StoryEntity> cachedStories = List();
+  ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = new ScrollController()
+      ..addListener(_onScrollStoriesList);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScrollStoriesList);
+    super.dispose();
+  }
+
+  void _onScrollStoriesList() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      loadMoreStories();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-        body: _isLoading
-            ? Center(child: CupertinoActivityIndicator())
+        body: ids.isEmpty
+            ? Center(
+                child: InkWell(
+                  onTap: getNewStories,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(Icons.refresh),
+                      Text("Click to refresh")
+                    ],
+                  ),
+                ),
+              )
             : RefreshIndicator(
                 onRefresh: getNewStories,
                 child: ListView.builder(
-                  itemCount: this.ids.length,
+                  controller: _scrollController,
+                  itemCount: this.cachedStories.length + 1,
                   itemBuilder: (context, index) {
-                    return FutureBuilder(
-                      future: api.getStory(ids[index]),
-                      builder: (context, snapshot) {
-                        if (cachedStories[index] != null) {
-                          return buildStoryListItem(cachedStories[index]);
-                        } else {
-                          if (snapshot.hasData && snapshot.data != null) {
-                            var item = snapshot.data;
-                            cachedStories[index] = item;
-                            return buildStoryListItem(item);
-                          } else if (snapshot.hasError) {
-                            return Container(
-                              padding: EdgeInsets.all(32.0),
-                              child: Center(
-                                  child: Text(
-                                "Error loading story ${this.ids[index]}",
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w300),
-                              )),
-                            );
-                          } else {
-                            return Container(
-                              padding: EdgeInsets.all(32.0),
-                              child: Card(
-                                margin: EdgeInsets.all(10),
-                                child: CupertinoActivityIndicator(),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                    );
+                    if (index < cachedStories.length) {
+                      return buildStoryListItem(cachedStories[index]);
+                    } else if (_isLoadingMore) {
+                      return Container(
+                        height: 50.0,
+                        child: Center(
+                          child: new CircularProgressIndicator(),
+                        ),
+                      );
+                    } else
+                      return Container(
+                        height: 50,
+                      );
                   },
                 ),
               ));
   }
 
-  @override
-  void initState() {
-    super.initState();
-    text = "I\'m from ${widget.type.toString()}";
-    getNewStories();
+  Future<void> getNewStories() async {
+    this.cachedStories.clear();
+    this.ids = await api.getTopStories();
+    fetchStories(this.ids.sublist(
+            cachedStories.length, cachedStories.length + _NUM_LOAD_MORE))
+        .then((value) {
+      setState(() {
+        cachedStories.addAll(value);
+        _isLoadingMore = false;
+      });
+    });
   }
 
-  Future<void> getNewStories() async {
-    setState(() {
-      _isLoading = true;
-    });
-    var s = await api.getTopStories();
-    ids = s;
-    setState(() {
-      _isLoading = false;
-    });
+  Future<void> loadMoreStories() {
+    if (_isLoadingMore == false) {
+      setState(() {
+        _isLoadingMore = true;
+      });
+      fetchStories(this.ids.sublist(
+              cachedStories.length, cachedStories.length + _NUM_LOAD_MORE))
+          .then((value) {
+        setState(() {
+          cachedStories.addAll(value);
+          _isLoadingMore = false;
+        });
+      });
+    }
   }
 
   @override
@@ -99,5 +122,14 @@ class _StoriesPageState extends State<StoriesPage>
         child: Text(item.title),
       ),
     );
+  }
+
+  Future<List<StoryEntity>> fetchStories(List<int> ids) async {
+    List<StoryEntity> list = List();
+    await Future.wait(ids.map((int e) => api.getStory(e)))
+        .then((List<StoryEntity> value) =>
+            list.addAll(value..sort((a, b) => b.id.compareTo(a.id))))
+        .catchError(print);
+    return Future.value(list);
   }
 }
