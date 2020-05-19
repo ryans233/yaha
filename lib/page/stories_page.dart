@@ -25,7 +25,7 @@ class _StoriesPageState extends State<StoriesPage>
   @override
   void initState() {
     super.initState();
-    _scrollController = new ScrollController()
+    _scrollController = ScrollController()
       ..addListener(_onScrollStoriesList);
   }
 
@@ -71,7 +71,7 @@ class _StoriesPageState extends State<StoriesPage>
                       return Container(
                         height: 50.0,
                         child: Center(
-                          child: new CircularProgressIndicator(),
+                          child: CircularProgressIndicator(),
                         ),
                       );
                     } else
