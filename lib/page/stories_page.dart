@@ -119,10 +119,10 @@ class _StoriesPageState extends State<StoriesPage>
   Widget buildStoryListItem(StoryEntity item) {
     return Card(
       child: InkWell(
-        child: Padding(
+        child: Hero(child: Material(child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(item.title),
-        ),
+        ),),tag: item.id,),
         onTap: () => Navigator.pushNamed(context, '/story', arguments: item),
       ),
     );

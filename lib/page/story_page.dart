@@ -27,10 +27,10 @@ class StoryPage extends StatelessWidget {
 
   Widget buildStoryTitle(BuildContext context, StoryEntity story) => Padding(
         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-        child: Text(
+        child: Hero(child:Material(child: Text(
           story.title,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+        ),) ,tag: story.id,),
       );
 
   Widget buildStoryUrl(BuildContext context, StoryEntity story) => Padding(
