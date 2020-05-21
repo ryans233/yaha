@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yaha/model/story_entity.dart';
+import 'package:yaha/page/comments_page.dart';
 
 class StoryPage extends StatelessWidget {
   @override
@@ -15,22 +16,31 @@ class StoryPage extends StatelessWidget {
           title: Text(story.title),
           elevation: 0,
         ),
-        body: Column(crossAxisAlignment: CrossAxisAlignment.start,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             buildStoryTitle(context, story),
             buildStoryUrl(context, story),
             buildStoryMiscData(context, story),
-            buildDivider()
+            buildDivider(),
+            Expanded(
+              child: CommentsPage(commentIds: story.kids),
+            )
           ],
         ));
   }
 
   Widget buildStoryTitle(BuildContext context, StoryEntity story) => Padding(
         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-        child: Hero(child:Material(child: Text(
-          story.title,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),) ,tag: story.id,),
+        child: Hero(
+          child: Material(
+            child: Text(
+              story.title,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          tag: story.id,
+        ),
       );
 
   Widget buildStoryUrl(BuildContext context, StoryEntity story) => Padding(
@@ -50,11 +60,16 @@ class StoryPage extends StatelessWidget {
     var dateFormatter = DateFormat('yyyy-MM-dd HH:mm:ss');
 
     return Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-        child:Text("Posted by ${story.by} • ${dateFormatter.format(postDateTime)}"),);
+      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+      child:
+          Text("Posted by ${story.by} • ${dateFormatter.format(postDateTime)}"),
+    );
   }
 
-  Widget buildDivider() => Padding(padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Divider(height: 3, color: Colors.grey),);
+  Widget buildDivider() => Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        child: Divider(height: 3, color: Colors.grey),
+      );
 
   _launchUrl(String url) async {
     print("_launchUrl");

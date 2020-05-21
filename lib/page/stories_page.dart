@@ -97,7 +97,7 @@ class _StoriesPageState extends State<StoriesPage>
     });
   }
 
-  Future<void> loadMoreStories() {
+  void loadMoreStories() {
     if (_isLoadingMore == false) {
       setState(() {
         _isLoadingMore = true;
@@ -119,10 +119,15 @@ class _StoriesPageState extends State<StoriesPage>
   Widget buildStoryListItem(StoryEntity item) {
     return Card(
       child: InkWell(
-        child: Hero(child: Material(child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(item.title),
-        ),),tag: item.id,),
+        child: Hero(
+          child: Material(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(item.title),
+            ),
+          ),
+          tag: item.id,
+        ),
         onTap: () => Navigator.pushNamed(context, '/story', arguments: item),
       ),
     );

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:yaha/model/comment_entity.dart';
 import 'package:yaha/model/story_entity.dart';
 
 class HackerNewsApi {
@@ -24,5 +25,13 @@ class HackerNewsApi {
       return StoryEntity.fromJson(jsonDecode(response.body));
     } else
       throw Exception("Failed to load story");
+  }
+
+  Future<CommentEntity> getComment(int id) async {
+    var response = await http.get(_baseUrl + "v0/item/$id.json");
+    if (response.statusCode == 200) {
+      return CommentEntity.fromJson(jsonDecode(response.body));
+    } else
+      throw Exception("Failed to load comment");
   }
 }
