@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yaha/page/home_page.dart';
 import 'package:yaha/page/settings_page.dart';
+import 'package:yaha/page/story_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => HomePage(),
         '/settings': (context) => SettingsPage(),
+        '/story': (context) => StoryPage(),
       },
     );
   }

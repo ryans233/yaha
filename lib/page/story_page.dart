@@ -1,0 +1,85 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:yaha/model/story_entity.dart';
+
+class StoryPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final StoryEntity story = ModalRoute.of(context).settings.arguments;
+
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(story.title),
+          elevation: 0,
+        ),
+        body: Column(crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            buildStoryTitle(context, story),
+            buildStoryUrl(context, story),
+            buildStoryMiscData(context, story),
+            buildDivider()
+          ],
+        ));
+  }
+
+  Widget buildStoryTitle(BuildContext context, StoryEntity story) => Padding(
+        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+        child: Text(
+          story.title,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      );
+
+  Widget buildStoryUrl(BuildContext context, StoryEntity story) => Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10.0),
+        child: GestureDetector(
+            child: Text(
+              story.url,
+              maxLines: 3,
+              style: TextStyle(color: Colors.blue, fontSize: 16),
+            ),
+            onTap: () => _launchUrl(story.url),
+            onLongPress: () => _showDialog(context, story)),
+      );
+
+  Widget buildStoryMiscData(BuildContext context, StoryEntity story) {
+    var postDateTime = DateTime.fromMillisecondsSinceEpoch(story.time * 1000);
+    var dateFormatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+
+    return Padding(
+        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+        child:Text("Posted by ${story.by} • ${dateFormatter.format(postDateTime)}"),);
+  }
+
+  Widget buildDivider() => Padding(padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5), child: Divider(height: 3, color: Colors.grey),);
+
+  _launchUrl(String url) async {
+    print("_launchUrl");
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  void _showDialog(BuildContext context, StoryEntity story) {
+    showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        children: <Widget>[
+          SimpleDialogOption(
+            child: Text("OK"),
+            onPressed: () {
+              Fluttertoast.showToast(
+                  msg: "OK", toastLength: Toast.LENGTH_SHORT);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -27,8 +27,7 @@ class _StoriesPageState extends State<StoriesPage>
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController()
-      ..addListener(_onScrollStoriesList);
+    _scrollController = ScrollController()..addListener(_onScrollStoriesList);
   }
 
   @override
@@ -119,9 +118,12 @@ class _StoriesPageState extends State<StoriesPage>
 
   Widget buildStoryListItem(StoryEntity item) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(item.title),
+      child: InkWell(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(item.title),
+        ),
+        onTap: () => Navigator.pushNamed(context, '/story', arguments: item),
       ),
     );
   }
