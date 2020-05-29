@@ -8,8 +8,9 @@ class CommentEntity {
     String text;
     int time;
     String type;
+    bool deleted;
 
-    CommentEntity({this.by, this.id, this.kids, this.parent, this.text, this.time, this.type});
+    CommentEntity({this.by, this.id, this.kids, this.parent, this.text, this.time, this.type, this.deleted});
 
     factory CommentEntity.fromJson(Map<String, dynamic> json) {
         return CommentEntity(
@@ -20,6 +21,7 @@ class CommentEntity {
             text: json['text'],
             time: json['time'],
             type: json['type'],
+            deleted: json['deleted']
         );
     }
 
@@ -34,6 +36,14 @@ class CommentEntity {
         if (this.kids != null) {
             data['kids'] = this.kids;
         }
+        if (this.deleted != null) {
+            data['deleted'] = this.deleted;
+        }
         return data;
     }
+
+    @override
+  String toString() {
+    return """{"by": $by, "id": $id, "kids": $kids, "parent": $parent, "text": $text, "time": $time, "type": $type, "deleted": $deleted}""";
+  }
 }

@@ -24,7 +24,7 @@ class StoryPage extends StatelessWidget {
             buildStoryMiscData(context, story),
             buildDivider(),
             Expanded(
-              child: CommentsPage(commentIds: story.kids),
+              child: CommentsPage(storyEntity: story),
             )
           ],
         ));
