@@ -123,7 +123,41 @@ class _StoriesPageState extends State<StoriesPage>
           child: Material(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(item.title),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        item.by.toString(),
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                      Spacer(),
+                      Text(
+                        (item.descendants == null || item.descendants == 0)
+                            ? ""
+                            : item.descendants.toString(),
+                        textAlign: TextAlign.end,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
           tag: item.id,
@@ -136,9 +170,7 @@ class _StoriesPageState extends State<StoriesPage>
   Future<List<StoryEntity>> fetchStories(List<int> ids) async {
     var random = Random();
     List<StoryEntity> list = List();
-    await Future.wait(ids.map((int e) => Future.delayed(
-            Duration(milliseconds: random.nextInt(100)),
-            () => api.getStory(e))))
+    await Future.wait(ids.map((int e) => api.getStory(e)))
         .then((List<StoryEntity> value) =>
             list.addAll(value..sort((a, b) => b.id.compareTo(a.id))))
         .catchError(print);
