@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:yaha/model/story_entity.dart';
 import 'package:yaha/page/comments_page.dart';
+import 'package:yaha/util/url_utils.dart';
 
 class StoryPage extends StatelessWidget {
   @override
@@ -51,7 +51,7 @@ class StoryPage extends StatelessWidget {
               maxLines: 3,
               style: TextStyle(color: Colors.blue, fontSize: 16),
             ),
-            onTap: () => _launchUrl(story.url),
+            onTap: () => launchUrl(story.url),
             onLongPress: () => _showDialog(context, story)),
       );
 
@@ -70,15 +70,6 @@ class StoryPage extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         child: Divider(height: 3, color: Colors.grey),
       );
-
-  _launchUrl(String url) async {
-    print("_launchUrl");
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
 
   void _showDialog(BuildContext context, StoryEntity story) {
     showDialog(
