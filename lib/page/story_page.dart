@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:yaha/model/story_entity.dart';
 import 'package:yaha/page/comments_page.dart';
+import 'package:yaha/util/toast_utils.dart';
 import 'package:yaha/util/url_utils.dart';
 
 class StoryPage extends StatelessWidget {
@@ -79,8 +79,7 @@ class StoryPage extends StatelessWidget {
           SimpleDialogOption(
             child: Text("OK"),
             onPressed: () {
-              Fluttertoast.showToast(
-                  msg: "OK", toastLength: Toast.LENGTH_SHORT);
+              ToastUtils.show(context, msg: "OK");
               Navigator.of(context).pop();
             },
           ),

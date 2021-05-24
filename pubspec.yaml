@@ -19,7 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  fluttertoast: ^4.0.1
+  flutter_styled_toast: 2.0.0
   http: ^0.13.3
   url_launcher: ^6.0.4
   intl: ^0.17.0
