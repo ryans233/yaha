@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:yaha/model/comment_entity.dart';
-import 'package:yaha/model/story_entity.dart';
+import 'package:yaha/entity/comment_entity.dart';
+import 'package:yaha/entity/story_entity.dart';
 
 class HackerNewsApi {
   static final String _baseUrl = "https://hacker-news.firebaseio.com/";

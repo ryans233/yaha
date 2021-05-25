@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:yaha/entity/story_entity.dart';
 import 'package:yaha/enum/story_type.dart';
-import 'package:yaha/model/story_entity.dart';
 import 'package:yaha/repo/hacker_news_api.dart';
 
 class StoriesPage extends StatefulWidget {

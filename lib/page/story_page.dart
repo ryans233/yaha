@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:yaha/model/story_entity.dart';
+import 'package:yaha/entity/story_entity.dart';
 import 'package:yaha/page/comments_page.dart';
 import 'package:yaha/util/toast_utils.dart';
 import 'package:yaha/util/url_utils.dart';
