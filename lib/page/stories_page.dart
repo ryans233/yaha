@@ -106,8 +106,9 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   Widget buildStoryListItem(StoryEntity item) {
-    return Card(
-      child: GestureDetector(
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, '/story', arguments: item),
+      child: Card(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -146,7 +147,6 @@ class _StoriesPageState extends State<StoriesPage> {
             ],
           ),
         ),
-        onTap: () => Navigator.pushNamed(context, '/story', arguments: item),
       ),
     );
   }
