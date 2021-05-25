@@ -4,12 +4,25 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:yaha/entity/comment_entity.dart';
 import 'package:yaha/entity/story_entity.dart';
+import 'package:yaha/enum/story_type.dart';
 
 class HackerNewsApi {
   static final String _baseUrl = "https://hacker-news.firebaseio.com/";
 
-  Future<List<int>> getTopStories() async {
-    var response = await http.get(Uri.parse(_baseUrl + 'v0/topstories.json'));
+  Future<List<int>> getStories(StoryType type) async {
+    String path;
+    switch (type) {
+      case StoryType.NEW:
+        path = "v0/newstories.json";
+        break;
+      case StoryType.TOP:
+        path = "v0/topstories.json";
+        break;
+      case StoryType.BEST:
+        path = "v0/beststories.json";
+        break;
+    }
+    var response = await http.get(Uri.parse(_baseUrl + path));
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
 

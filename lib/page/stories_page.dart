@@ -1,120 +1,97 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:yaha/entity/story_entity.dart';
 import 'package:yaha/enum/story_type.dart';
-import 'package:yaha/repo/hacker_news_api.dart';
+import 'package:yaha/model/stories_model.dart';
 
 class StoriesPage extends StatefulWidget {
-  StoriesPage({Key key, @required this.type}) : super(key: key);
-  final StoryType type;
-
   @override
   _StoriesPageState createState() => _StoriesPageState();
 }
 
-class _StoriesPageState extends State<StoriesPage>
-    with AutomaticKeepAliveClientMixin {
-  var api = HackerNewsApi();
-  var _isLoadingMore = false;
-  final _NUM_LOAD_MORE = 20;
-
-  List<int> ids = List();
-  List<StoryEntity> cachedStories = List();
-  ScrollController _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController()..addListener(_onScrollStoriesList);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_onScrollStoriesList);
-    super.dispose();
-  }
-
-  void _onScrollStoriesList() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      loadMoreStories();
-    }
-  }
+class _StoriesPageState extends State<StoriesPage> {
+  final keyRefreshIndicator = new GlobalKey<RefreshIndicatorState>();
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return Scaffold(
-        body: ids.isEmpty
-            ? Center(
-                child: InkWell(
-                  onTap: getNewStories,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Icon(Icons.refresh),
-                      Text("Click to refresh")
-                    ],
-                  ),
-                ),
-              )
-            : RefreshIndicator(
-                onRefresh: getNewStories,
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemCount: this.cachedStories.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index < cachedStories.length) {
-                      return buildStoryListItem(cachedStories[index]);
-                    } else if (_isLoadingMore) {
-                      return Container(
-                        height: 50.0,
-                        child: Center(
-                          child: CircularProgressIndicator(),
+    return ChangeNotifierProvider(
+      create: (BuildContext _) => StoriesModel(),
+      builder: (context, child) {
+        var isLoadingMore =
+            context.select((StoriesModel value) => value.isLoadingMore);
+        var cachedStories =
+            context.select((StoriesModel value) => value.cachedStories);
+        var currentType =
+            context.select((StoriesModel value) => value.currentType);
+
+        return Scaffold(
+            appBar: AppBar(
+              title: DropdownButton(
+                onChanged: (value) {
+                  context.read<StoriesModel>().setType(value);
+                  keyRefreshIndicator.currentState.show();
+                },
+                value: currentType,
+                underline: SizedBox.shrink(),
+                icon: SizedBox.shrink(),
+                items: StoryType.values
+                    .map(
+                      (e) => DropdownMenuItem<StoryType>(
+                        child: Text(
+                          e.toString(),
+                          style: TextStyle(color: Colors.black),
                         ),
-                      );
-                    } else
-                      return Container(
-                        height: 50,
-                      );
-                  },
-                ),
-              ));
+                        value: e,
+                      ),
+                    )
+                    .toList(),
+              ),
+              actions: _buildActions(context),
+            ),
+            body: RefreshIndicator(
+              key: keyRefreshIndicator,
+              onRefresh: () => context.read<StoriesModel>().getNewStories(),
+              child: ListView.builder(
+                physics: AlwaysScrollableScrollPhysics(),
+                controller: context.watch<StoriesModel>().scrollController,
+                itemCount: cachedStories.length + 1,
+                itemBuilder: (context, index) {
+                  if (cachedStories.isEmpty)
+                    return Container(
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.accessibility,
+                              size: 64,
+                            ),
+                            Text(
+                              "Pull to refresh",
+                              style: TextStyle(fontSize: 24),
+                            ),
+                          ],
+                        ),
+                      ),
+                      margin: EdgeInsets.symmetric(vertical: 100),
+                    );
+                  else if (index < cachedStories.length) {
+                    return buildStoryListItem(cachedStories[index]);
+                  } else if (isLoadingMore) {
+                    return Container(
+                      height: 50.0,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  } else
+                    return SizedBox.shrink();
+                },
+              ),
+            ));
+      },
+    );
   }
-
-  Future<void> getNewStories() async {
-    this.cachedStories.clear();
-    this.ids = await api.getTopStories();
-    fetchStories(this.ids.sublist(
-            cachedStories.length, cachedStories.length + _NUM_LOAD_MORE))
-        .then((value) {
-      setState(() {
-        cachedStories.addAll(value);
-        _isLoadingMore = false;
-      });
-    });
-  }
-
-  void loadMoreStories() {
-    if (_isLoadingMore == false) {
-      setState(() {
-        _isLoadingMore = true;
-      });
-      fetchStories(this.ids.sublist(
-              cachedStories.length, cachedStories.length + _NUM_LOAD_MORE))
-          .then((value) {
-        setState(() {
-          cachedStories.addAll(value);
-          _isLoadingMore = false;
-        });
-      });
-    }
-  }
-
-  @override
-  bool get wantKeepAlive => true;
 
   Widget buildStoryListItem(StoryEntity item) {
     return Card(
@@ -167,13 +144,15 @@ class _StoriesPageState extends State<StoriesPage>
     );
   }
 
-  Future<List<StoryEntity>> fetchStories(List<int> ids) async {
-    var random = Random();
-    List<StoryEntity> list = List();
-    await Future.wait(ids.map((int e) => api.getStory(e)))
-        .then((List<StoryEntity> value) =>
-            list.addAll(value..sort((a, b) => b.id.compareTo(a.id))))
-        .catchError(print);
-    return Future.value(list);
+  List<Widget> _buildActions(BuildContext context) {
+    return <Widget>[
+      IconButton(
+        icon: Icon(Icons.settings),
+        color: Colors.white,
+        tooltip: "Open settings page",
+        onPressed: () => Navigator.pushNamed(context, "/settings"),
+      ),
+    ];
   }
+
 }
