@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:yaha/entity/story_entity.dart';
 import 'package:yaha/enum/story_type.dart';
+import 'package:yaha/model/app_settings_model.dart';
 import 'package:yaha/model/stories_model.dart';
 
 class StoriesPage extends StatefulWidget {
@@ -15,8 +16,10 @@ class _StoriesPageState extends State<StoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (BuildContext _) => StoriesModel(),
+    return ChangeNotifierProxyProvider<AppSettingsModel, StoriesModel>(
+      create: (BuildContext context) =>
+          StoriesModel(context.read<AppSettingsModel>()),
+      update: (context, value, previous) => previous..onSettingsChanged(),
       builder: (context, child) {
         var isLoadingMore =
             context.select((StoriesModel value) => value.isLoadingMore);
